@@ -1,0 +1,10 @@
+{
+  "name": "vue-apis",
+  "version": "1.0.0",
+  "description": "Server for Vue.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "json-server --watch db.json --port 3000",
+  },
+  "license": "MIT"
+}
