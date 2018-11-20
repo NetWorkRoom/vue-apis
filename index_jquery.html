@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Привет Vue!</title>
+    <title>Привет, Vue!</title>
     <!-- Подключен bootstrap для улучшения внешнего вида элементов (необязательно) -->
     <link
             rel="stylesheet"
@@ -36,9 +36,9 @@
                     используем кострукцию is="aphorism" -->
                     <tr
                             v-for="aphorism in aphorisms"
-                            :key="aphorism.id" is="aphorism"
+                            :key="aphorism.id"
+                            is="aphorism"
                             :aphorism="aphorism">
-
                     </tr>
 
                 </table>
@@ -102,10 +102,10 @@
 
             /* Метод позволяет увеличивать голос за запись на 1
             и добавить данную информаци на сервере */
-            upvoteAphorism: function (aphorism) {
+            upvoteAphorism: function(aphorism) {
                 /* Увеличиваем значение свойства votes у выбранной записи */
                 aphorism.votes++;
-                /* Заменяем на сервре запись на запись с новым значение */
+                /* Заменяем на сервере запись на запись с новым значением голосовния в ней */
                 $.ajax({
                     url: local + aphorism.id,
                     type: 'PATCH',
@@ -115,11 +115,12 @@
 
             /* Метод позволяет удалять запись на странице
             и удалять ее же на сервере */
-            deleteAphorism: function (aphorism) {
+            deleteAphorism: function(aphorism) {
                 /* Записываем в переменную index номер позиции
                 выбранного для удаления объекта в массиве aphorisms */
                 var index = vm.aphorisms.indexOf(aphorism);
-                /* Удаляем в общем массиве выбранный для удаления объект */
+                /* Удаляем в общем массиве записей aphorisms выбранный для удаления объект
+                для вывода на странице */
                 vm.aphorisms.splice(index, 1);
                 /* Отправляем запрос на удаление выбранного объекта в базе данных на сервере */
                 $.ajax({
@@ -138,9 +139,9 @@
 
         /* Метод позволяет получить все записи с сервера по указанному адресу
         и записать их в массив aphorisms в объекте $data */
-        mounted: function () {
+        mounted: function() {
             var vm = this;
-            $.get(local, function (data) {
+            $.get(local, function(data) {
                 vm.aphorisms = data;
             })
         }

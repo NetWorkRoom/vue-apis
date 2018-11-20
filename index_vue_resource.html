@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Привет, Vue!</title>
+	<!-- Подключен bootstrap для улучшения внешнего вида элементов (необязательно) -->
+	<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+			integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+			crossorigin="anonymous">
+</head>
+
+<body>
+<!-- Контейнер к которому подключен Vue.js -->
+<div id="app">
+	<div class="container">
+		<!-- Card из CSS-фреймворка Bootstrap позволяет
+        красивее отображать элементы на странице -->
+		<div class="card">
+			<h5 class="card-header">Афоризмы</h5>
+			<div class="card-body">
+				<!-- Создаем таблицу для формирования списка высказываний -->
+				<table class="table table-striped">
+					<tr>
+						<!-- Создаем заголовок таблицы -->
+						<th>#</th>
+						<th>Сюжет</th>
+						<th>Автор</th>
+						<th>Кол-во голосов</th>
+						<th>Действия</th>
+					</tr>
+					<!-- Выводим в цикле все высказывания из массива aphorisms,
+                    для указания компонента, в котором фрмируется вывод записи
+                    используем кострукцию is="aphorism" -->
+					<tr
+							v-for="aphorism in aphorisms"
+							:key="aphorism.id"
+							is="aphorism"
+							:aphorism="aphorism">
+					</tr>
+
+				</table>
+
+			</div>
+		</div>
+
+		<!-- Выводим состояние объекта $data (для лучшего понимания процесса)-->
+		<div class="card">
+			<h5 class="card-header">Консоль</h5>
+			<div class="card-body">
+
+				<pre v-cloak>{{ $data }}</pre>
+
+			</div>
+		</div>
+
+	</div>
+</div>
+<!-- Создаем шаблон компонента для вывода высказываний -->
+<template id="template-aphorisms">
+	<tr>
+		<!-- Выводим высказывание с указанием ее порядкового номера,
+        авторства, и количествм голосов за нее -->
+		<td>{{aphorism.id}}</td>
+		<td><span>{{aphorism.text}}</span></td>
+		<td><span>{{aphorism.writer}}</span></td>
+		<td>{{aphorism.votes}}</td>
+		<td>
+			<div class="btn-group">
+				<!-- Кнопка для добавления голоса за высказывание -->
+				<button type="button"
+						@click="upvoteAphorism(aphorism)"
+						class="btn btn-success">
+					Проголосовать
+				</button>
+				<!-- Кнопка для удаления высказывания -->
+				<button type="button"
+						@click="deleteAphorism(aphorism)"
+						class="btn btn-danger">
+					Удалить
+				</button>
+			</div>
+		</td>
+	</tr>
+</template>
+
+<!-- Подключаем Vue.js -->
+<script src="https://vuejs.org/js/vue.js"></script>
+<!-- Подключаем Vue Resource -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.5.1/vue-resource.min.js"></script>
+
+<script type="text/javascript">
+    /* Создаем переменную local с url адресом для получения данных с сервера */
+    var local = 'http://localhost:3000/aphorisms/';
+
+    /* Создаем компонент aphorism и методы для него */
+    Vue.component('aphorism', {
+        template: "#template-aphorisms",
+        props: ['aphorism'],
+        methods: {
+
+            /* Метод позволяет увеличивать голос за запись на 1
+            и добавить данную информаци на сервере */
+            upvoteAphorism: function(aphorism) {
+                /* Увеличиваем значение свойства votes у выбранной записи на странице */
+                aphorism.votes++;
+                /* Заменяем на сервере запись на запись с новым значением голосовния в ней */
+                this.$http.patch(local + aphorism.id, aphorism);
+            },
+
+            /* Метод позволяет удалять запись на странице
+            и удалять ее же на сервере */
+            deleteAphorism: function(aphorism) {
+                /* Записываем в переменную index номер позиции
+                выбранного для удаления объекта в массиве aphorisms */
+                var index = vm.aphorisms.indexOf(aphorism);
+                /* Удаляем в общем массиве записей aphorisms выбранный для удаления объект
+                для вывода на странице */
+                vm.aphorisms.splice(index, 1);
+                /* Отправляем запрос на удаление выбранного объекта в базе данных на сервере */
+                this.$http.delete(local + aphorism.id);
+            }
+        },
+    });
+    /* Создаем новый объект Vue и записываем его в переменную vm */
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            aphorisms: []
+        },
+
+        /* Метод позволяет получить все записи с сервера по указанному адресу
+        и записать их в массив aphorisms в объекте $data */
+        mounted: function() {
+
+            var vm = this;
+
+            this.$http.get(local).then(response => {
+                vm.aphorisms = response.body;
+            }, response => {
+                console.log(response)
+            });
+        }
+    })
+
+</script>
+
+</body>
+
+</html>
