@@ -2,151 +2,195 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<title>Привет, Vue!</title>
-	<!-- Подключен bootstrap для улучшения внешнего вида элементов (необязательно) -->
-	<link
-			rel="stylesheet"
-			href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-			integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-			crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>Привет, Vue!</title>
+    <!-- Подключен bootstrap для улучшения внешнего вида элементов (необязательно) -->
+    <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+            integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+            crossorigin="anonymous">
+
+    <style>
+        /* Немного стилей для улучшения внешнего вида примеров */
+        /* v-cloak - убирает отображение двойных фигурных скобок при загрузке страницы */
+
+        [v-cloak] {
+            display: none;
+        }
+
+        body {
+            background-color: #eee !important;
+        }
+
+        .container {
+            min-height: 400px;
+            margin-top: 30px;
+            background-color: #eee;
+        }
+
+        .card {
+            margin-top: 35px;
+            margin-bottom: 15px;
+        }
+
+    </style>
 </head>
 
 <body>
 <!-- Контейнер к которому подключен Vue.js -->
 <div id="app">
-	<div class="container">
-		<!-- Card из CSS-фреймворка Bootstrap позволяет
-        красивее отображать элементы на странице -->
-		<div class="card">
-			<h5 class="card-header">Афоризмы</h5>
-			<div class="card-body">
-				<!-- Создаем таблицу для формирования списка высказываний -->
-				<table class="table table-striped">
-					<tr>
-						<!-- Создаем заголовок таблицы -->
-						<th>#</th>
-						<th>Сюжет</th>
-						<th>Автор</th>
-						<th>Кол-во голосов</th>
-						<th>Действия</th>
-					</tr>
-					<!-- Выводим в цикле все высказывания из массива aphorisms,
-                    для указания компонента, в котором фрмируется вывод записи
-                    используем кострукцию is="aphorism" -->
-					<tr
-							v-for="aphorism in aphorisms"
-							:key="aphorism.id"
-							is="aphorism"
-							:aphorism="aphorism">
-					</tr>
+    <div class="container">
 
-				</table>
+        <h3 class="mt-5 mb-3 text-center">Афоризмы</h3>
 
-			</div>
-		</div>
+        <!-- Создаем таблицу для формирования списка высказываний -->
+        <table class="table table-striped">
+            <!-- Создаем заголовок таблицы -->
+            <tr>
+                <th>#</th>
+                <th>Сюжет</th>
+                <th>Автор</th>
+                <th>Кол-во голосов</th>
+                <th>Действия</th>
+            </tr>
 
-		<!-- Выводим состояние объекта $data (для лучшего понимания процесса)-->
-		<div class="card">
-			<h5 class="card-header">Консоль</h5>
-			<div class="card-body">
+            <!-- Выводим в цикле все высказывания из массива aphorisms,
+            для указания компонента, в котором фрмируется вывод записи
+            используем кострукцию is="aphorism" -->
+            <tr
+                    v-for="aphorism in aphorisms"
+                    :key="aphorism.id"
+                    is="aphorism"
+                    :aphorism="aphorism">
+            </tr>
+        </table>
 
-				<pre v-cloak>{{ $data }}</pre>
+        <!-- Добавляем кнопку для добавление новых афоризмов в список -->
+        <p class="lead">
+            <button type="button" @click="createAphorism()" class="btn btn-success">Добавить новый</button>
+        </p>
 
-			</div>
-		</div>
+        <!-- Выводим состояние объекта $data (для лучшего понимания процесса)-->
+        <div class="card">
+            <h5 class="card-header">Консоль</h5>
+            <div class="card-body">
 
-	</div>
+                <pre v-cloak>{{ $data }}</pre>
+
+            </div>
+        </div>
+
+    </div>
 </div>
-<!-- Создаем шаблон компонента для вывода высказываний -->
+
+<!-- Создаем шаблон компонента для вывода афоризмов -->
 <template id="template-aphorisms">
-	<tr>
-		<!-- Выводим высказывание с указанием ее порядкового номера,
-        авторства, и количествм голосов за нее -->
-		<td>{{aphorism.id}}</td>
-		<td><span>{{aphorism.text}}</span></td>
-		<td><span>{{aphorism.writer}}</span></td>
-		<td>{{aphorism.votes}}</td>
-		<td>
-			<div class="btn-group">
-				<!-- Кнопка для добавления голоса за высказывание -->
-				<button type="button"
-						@click="upvoteAphorism(aphorism)"
-						class="btn btn-success">
-					Проголосовать
-				</button>
-				<!-- Кнопка для удаления высказывания -->
-				<button type="button"
-						@click="deleteAphorism(aphorism)"
-						class="btn btn-danger">
-					Удалить
-				</button>
-			</div>
-		</td>
-	</tr>
+    <!-- Выводим афоризм с указанием его порядкового номера,
+    авторства, и количествм голосов за него -->
+    <tr>
+        <td>
+            {{aphorism.id}}
+        </td>
+
+        <td class="col-md-6">
+            <!-- Если афоризм редактируется, показываем поле ввода для текста -->
+            <input
+                    v-if="aphorism.editing"
+                    v-model="aphorism.text"
+                    class="form-control">
+
+            <!-- В остальных случаях показываем текст афоризма -->
+            <span v-else>
+                {{aphorism.text}}
+            </span>
+        </td>
+
+        <td>
+            <!-- Если афоризм редактируется, показываем поле ввода для автора -->
+            <input
+                    v-if="aphorism.editing"
+                    v-model="aphorism.writer"
+                    class="form-control">
+
+            <!-- В остальных случаях, показываем автора афоризма -->
+            <span v-else>
+                {{aphorism.writer}}
+            </span>
+        </td>
+
+        <!-- Показываем количество голосов за данный афоризм -->
+        <td>
+            {{aphorism.votes}}
+        </td>
+
+        <td>
+            <!-- Показываем набор кнопок если афоризм не редактируется -->
+            <div class="btn-group" v-if="!aphorism.editing">
+
+                <!-- Кнопка для добавления голоса за данный афоризм -->
+                <button
+                        type="button"
+                        @click="upvoteAphorism(aphorism)"
+                        class="btn btn-primary btn-sm">
+                    Проголосовать
+                </button>
+
+                <!-- Кнопка для вызова интерфейса редактирования афоризма -->
+                <button
+                        type="button"
+                        @click="editAphorism(aphorism)"
+                        class="btn btn-success btn-sm">
+                    Редактировать
+                </button>
+
+                <!-- Кнопка для удаления афоризма -->
+                <button
+                        type="button"
+                        @click="deleteAphorism(aphorism)"
+                        class="btn btn-danger btn-sm">
+                    Удалить
+                </button>
+            </div>
+
+            <!-- Показываем набор кнопок в режиме редактирования афоризма -->
+            <div class="btn-group" v-else>
+
+                <!-- Если афоризм получен из базы данных, она имеет идентификатор -->
+                <button
+                        type="button"
+                        v-if="aphorism.id"
+                        class="btn btn-primary btn-sm"
+                        @click="updateAphorism(aphorism)">
+                    Обновить
+                </button>
+
+                <!-- Если афоризм новый, значит мы можем сохранить его -->
+                <button
+                        type="button"
+                        v-else class="btn btn-success btn-sm"
+                        @click="saveAphorism(aphorism)">
+                    Сохранить
+                </button>
+
+                <!-- Всегда показываем кнопку отмены -->
+                <button
+                        type="button"
+                        @click="aphorism.editing=false"
+                        class="btn btn-default btn-sm">
+                    Отмена
+                </button>
+
+            </div>
+        </td>
+    </tr>
 </template>
 
 <!-- Подключаем Vue.js -->
 <script src="https://vuejs.org/js/vue.js"></script>
 <!-- Подключаем Vue Resource -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.5.1/vue-resource.min.js"></script>
-
-<script type="text/javascript">
-    /* Создаем переменную local с url адресом для получения данных с сервера */
-    var local = 'http://localhost:3000/aphorisms/';
-
-    /* Создаем компонент aphorism и методы для него */
-    Vue.component('aphorism', {
-        template: "#template-aphorisms",
-        props: ['aphorism'],
-        methods: {
-
-            /* Метод позволяет увеличивать голос за запись на 1
-            и добавить данную информаци на сервере */
-            upvoteAphorism: function(aphorism) {
-                /* Увеличиваем значение свойства votes у выбранной записи на странице */
-                aphorism.votes++;
-                /* Заменяем на сервере запись на запись с новым значением голосовния в ней */
-                this.$http.patch(local + aphorism.id, aphorism);
-            },
-
-            /* Метод позволяет удалять запись на странице
-            и удалять ее же на сервере */
-            deleteAphorism: function(aphorism) {
-                /* Записываем в переменную index номер позиции
-                выбранного для удаления объекта в массиве aphorisms */
-                var index = vm.aphorisms.indexOf(aphorism);
-                /* Удаляем в общем массиве записей aphorisms выбранный для удаления объект
-                для вывода на странице */
-                vm.aphorisms.splice(index, 1);
-                /* Отправляем запрос на удаление выбранного объекта в базе данных на сервере */
-                this.$http.delete(local + aphorism.id);
-            }
-        },
-    });
-    /* Создаем новый объект Vue и записываем его в переменную vm */
-    var vm = new Vue({
-        el: '#app',
-        data: {
-            aphorisms: []
-        },
-
-        /* Метод позволяет получить все записи с сервера по указанному адресу
-        и записать их в массив aphorisms в объекте $data */
-        mounted: function() {
-
-            var vm = this;
-
-            this.$http.get(local).then(response => {
-                vm.aphorisms = response.body;
-            }, response => {
-                console.log(response)
-            });
-        }
-    })
-
-</script>
-
+<!-- Подключаем app-vue-resource.js с кодом программы -->
+<script src="js/app-vue-resource.js"></script>
 </body>
-
 </html>
